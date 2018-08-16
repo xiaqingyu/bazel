@@ -196,8 +196,13 @@ genrule(
     cmd = """
 set -eu
 TMPDIR=$$(mktemp -d -t tmp.XXXXXXXX)
-$(JAVABASE)/bin/javac $< -d $$TMPDIR
-$(JAVA) -cp $$TMPDIR DumpPlatformClassPath $@
+$(JAVABASE)/bin/javac -source 8 -target 8 \
+    -Xlint:-options \
+    -cp $(JAVABASE)/lib/tools.jar \
+    -d $$TMPDIR $<
+$(JAVA) -XX:+IgnoreUnrecognizedVMOptions \
+    --add-exports=jdk.compiler/com.sun.tools.javac.platform=ALL-UNNAMED \
+    -cp $$TMPDIR DumpPlatformClassPath 8 $@
 rm -rf $$TMPDIR
 """,
     toolchains = ["@bazel_tools//tools/jdk:current_host_java_runtime"],
