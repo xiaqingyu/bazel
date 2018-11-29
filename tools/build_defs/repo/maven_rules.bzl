@@ -226,6 +226,10 @@ def _check_sha1(ctx, paths, sha1):
         _execute(ctx, "echo %s %s > %s" % (sha1, paths.artifact_path, paths.sha1_path))
 
 def _maven_artifact_impl(ctx, default_rule_packaging, build_file_template):
+
+    fail("this rule is DEPRECATED")
+
+    
     # Ensure that we have all of the dependencies installed
     _check_dependencies(ctx)
 
