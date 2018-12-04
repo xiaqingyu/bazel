@@ -30,6 +30,8 @@ import com.google.devtools.build.lib.util.Fingerprint;
 import com.google.devtools.build.lib.vfs.Path;
 import com.google.devtools.build.lib.vfs.PathFragment;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
 import javax.annotation.Nullable;
 
 /** Action to create a symbolic link. */
@@ -162,7 +164,16 @@ public final class SymlinkAction extends AbstractAction {
 
   @Override
   public ActionResult execute(ActionExecutionContext actionExecutionContext)
-      throws ActionExecutionException {
+      throws ActionExecutionException, InterruptedException {
+    try {
+      actionExecutionContext
+          .getActionInputPrefetcher()
+          .prefetchFiles(Collections.singletonList(getPrimaryInput()),
+              actionExecutionContext.getMetadataProvider());
+    } catch (IOException e) {
+      throw new ActionExecutionException("Failed to fetch remote input file.", e, this, false);
+    }
+
     maybeVerifyTargetIsExecutable(actionExecutionContext);
 
     Path srcPath;
